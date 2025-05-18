@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Kanban Board</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+    <header>
+        <h1>Kanban Board</h1>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </header>
+
+    <form method="POST" action="{{ url_for('add_task') }}" class="task-form">
+        <input type="text" name="title" placeholder="Titel" required>
+        <textarea name="description" placeholder="Beschreibung"></textarea>
+        <input type="text" name="label" placeholder="Label (z. B. Bug, Feature)">
+        <select name="priority">
+            <option value="">Priorität</option>
+            <option value="Low">Niedrig</option>
+            <option value="Medium">Mittel</option>
+            <option value="High">Hoch</option>
+        </select>
+        <textarea name="comments" placeholder="Kommentare"></textarea>
+        <button type="submit">Hinzufügen</button>
+    </form>
+
+    <main class="board">
+        {% for column in ['To Do', 'In Progress', 'Done'] %}
+        <section class="column" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>{{ column }}</h2>
+            <div class="task-container" data-status="{{ column }}">
+                {% for task in tasks if task.status == column %}
+                <div class="task" draggable="true" ondragstart="drag(event)" data-id="{{ task.id }}">
+                    <strong>{{ task.title }}</strong>
+                    <p>{{ task.description }}</p>
+                    {% if task.label %}<span class="label">{{ task.label }}</span>{% endif %}
+                    {% if task.priority %}<span class="priority">{{ task.priority }}</span>{% endif %}
+                    {% if task.comments %}<p class="comments">{{ task.comments }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+    </main>
+</body>
+</html>
