@@ -2,15 +2,22 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from models import db, User, Task
 import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'julis_sec_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-db = SQLAlchemy(app)
+
+db.init_app(app)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route('/')
 def home():
@@ -20,7 +27,7 @@ def home():
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        password = generate_password_hash(request.form['password'])
+        password = generate_password_hash(request.form['password'], method='pbkdf2:sha256')
         if User.query.filter_by(username=username).first():
             flash('Username already existing')
             return redirect(url_for('register'))
@@ -41,11 +48,13 @@ def login():
     return render_template('login.html')
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
 
 @app.route('/board')
+@login_required
 def board():
     tasks = Task.query.filter_by(user_id=current_user.id).all()
     return render_template('board.html', tasks=tasks)
@@ -77,5 +86,6 @@ def update_task(task_id):
 
 if __name__ == '__main__':
     if not os.path.exists('database.db'):
-        db.create_all()
+        with app.app_context():
+            db.create_all()
     app.run(debug=True)

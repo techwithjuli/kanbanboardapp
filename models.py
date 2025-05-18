@@ -1,3 +1,8 @@
+from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -14,7 +19,7 @@ class Task(db.Model):
     comments = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+#@login_manager.user_loader
+#def load_user(user_id):
+#    return User.query.get(int(user_id))
 

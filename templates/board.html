@@ -28,11 +28,18 @@
 
     <main class="board">
         {% for column in ['To Do', 'In Progress', 'Done'] %}
-        <section class="column" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <section class="column">
             <h2>{{ column }}</h2>
-            <div class="task-container" data-status="{{ column }}">
+            <div class="task-container"
+                data-status="{{ column }}"
+                ondragover="allowDrop(event)"
+                ondrop="drop(event)">
                 {% for task in tasks if task.status == column %}
-                <div class="task" draggable="true" ondragstart="drag(event)" data-id="{{ task.id }}">
+                <div class="task"
+                     id="{{ task.id }}"
+                     draggable="true"
+                     ondragstart="drag(event)"
+                     data-id="{{ task.id }}">
                     <strong>{{ task.title }}</strong>
                     <p>{{ task.description }}</p>
                     {% if task.label %}<span class="label">{{ task.label }}</span>{% endif %}
