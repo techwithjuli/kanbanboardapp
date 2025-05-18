@@ -65,3 +65,17 @@ def add_task():
     db.session.add(task)
     db.session.commit()
     return redirect(url_for('board'))
+
+@app.route('/update_task/<int:task_id>', methods=['POST'])
+@login_required
+def update_task(task_id):
+    task = Task.query.get(task_id)
+    if task and task.owner == current_user:
+        task.status = request.form['status']
+        db.session.commit()
+    return ('', 204)
+
+if __name__ == '__main__':
+    if not os.path.exists('database.db'):
+        db.create_all()
+    app.run(debug=True)
